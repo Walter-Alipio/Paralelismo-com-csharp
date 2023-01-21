@@ -7,7 +7,7 @@
 <h1>ByteBank transações</h1>
 
 <p>Processamento da informações do dia.</p>
-<button class="btn btn-primary" @onclick="ProccessOnClick">Fazer Processamento</button>
+<button class="btn btn-primary" disabled=@IsTaskRunning @onclick=@(() =>{IsTaskRunning = true; ProccessOnClick();})>Fazer Processamento</button>
 @if (modelClient == null)
 {
     <p><em>Loading...</em></p>
@@ -15,7 +15,8 @@
 else
 {
     <div>
-        <p>@modelClient.tempoDecorrido</p>
+        <br>
+        @* <p>@modelClient.tempoDecorrido</p> *@
         <p>@modelClient.mensagem</p>
     </div>
     <table class="table">
@@ -36,6 +37,8 @@ else
 }
 
 @code {
+
+    bool IsTaskRunning = false;
     private ViewModelDataClient? modelClient;
 
     @* protected override async Task OnInitializedAsync()
@@ -44,7 +47,9 @@ else
     } *@
     private async void ProccessOnClick()
     {
+      IsTaskRunning = true;
       modelClient = await ClienteService.ProcessarAsync();
+      IsTaskRunning = false;
     }
 
 }

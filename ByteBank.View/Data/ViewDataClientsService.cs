@@ -15,9 +15,8 @@ public class ViewDataClientsService
     _dataClient = new ViewModelDataClient();
   }
 
-  public Task<ViewModelDataClient> ProcessarAsync()
+  public async Task<ViewModelDataClient> ProcessarAsync()
   {
-    var taskSchedulerUI = TaskScheduler.FromCurrentSynchronizationContext();
     var contas = r_Repositorio.GetContaClientes();
 
     var resultado = new List<string>();
@@ -25,29 +24,7 @@ public class ViewDataClientsService
 
     var inicio = DateTime.Now;
 
-    var contasTarefas = contas.Select(conta =>
-    {
-      return Task.Factory.StartNew(() =>
-      {
-        var resultadoConta = r_Servico.ConsolidarMovimentacao(conta);
-        _dataClient.Resultado.Add(resultadoConta);
-      });
-    }).ToArray();
-
-
-    // ConsolidarContas(contas)
-    //   .ContinueWith(task =>
-    //   {
-    //     var fim = DateTime.Now;
-    //     _dataClient.Resultado = task.Result;
-
-    //     TimeSpan elapsedTime = fim - inicio;
-    //     _dataClient.tempoDecorrido = $"{elapsedTime.Seconds}.{elapsedTime.Milliseconds} segundos!";
-    //     _dataClient.mensagem = $"Processamento de {_dataClient.Resultado.Count} clientes em {_dataClient.tempoDecorrido}";
-    //   });
-
-
-    _dataClient.Resultado = ConsolidarContas(contas).Result;
+    _dataClient.Resultado = new List<string>(await ConsolidarContas(contas));
 
     var fim = DateTime.Now;
     TimeSpan elapsedTime = fim - inicio;
@@ -55,25 +32,15 @@ public class ViewDataClientsService
     _dataClient.mensagem = $"Processamento de {_dataClient.Resultado.Count} clientes em {_dataClient.tempoDecorrido}";
 
 
-    return Task.FromResult(_dataClient);
+    return _dataClient;
   }
 
-  private Task<List<string>> ConsolidarContas(IEnumerable<ContaCliente> contas)
+  private async Task<string[]> ConsolidarContas(IEnumerable<ContaCliente> contas)
   {
-    var resultado = new List<string>();
-
     var tasks = contas.Select(conta =>
-    {
-      return Task.Factory.StartNew(() =>
-      {
-        var resultadoConta = r_Servico.ConsolidarMovimentacao(conta);
-        resultado.Add(resultadoConta);
-      });
-    });
+       Task.Factory.StartNew(() => r_Servico.ConsolidarMovimentacao(conta))
+    );
 
-    return Task.WhenAll(tasks).ContinueWith(t =>
-      {
-        return resultado;
-      });
+    return await Task.WhenAll(tasks);
   }
 }

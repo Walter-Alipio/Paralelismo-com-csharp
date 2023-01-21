@@ -7,10 +7,11 @@
 <h1>ByteBank transações</h1>
 
 <p>Processamento da informações do dia.</p>
-<button class="btn btn-primary" disabled=@IsTaskRunning @onclick=@(() =>{IsTaskRunning = true; ProccessOnClick();})>Fazer Processamento</button>
+<button class="btn btn-primary" disabled=@IsTaskRunning @onclick=@ProccessOnClick>Fazer Processamento</button>
 @if (modelClient == null)
-{
+{   
     <p><em>Loading...</em></p>
+   
 }
 else
 {
@@ -41,15 +42,13 @@ else
     bool IsTaskRunning = false;
     private ViewModelDataClient? modelClient;
 
-    @* protected override async Task OnInitializedAsync()
+    private async void ProccessOnClick()    
     {
-        forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(DateTime.Now));
-    } *@
-    private async void ProccessOnClick()
-    {
-      IsTaskRunning = true;
+      this.IsTaskRunning = true;
+
       modelClient = await ClienteService.ProcessarAsync();
-      IsTaskRunning = false;
+    
+      this.IsTaskRunning = false;
     }
 
 }

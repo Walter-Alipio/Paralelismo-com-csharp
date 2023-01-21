@@ -1,3 +1,4 @@
+using ByteBank.Core.Model;
 using ByteBank.Core.Repository;
 using ByteBank.Core.Service;
 
@@ -34,24 +35,45 @@ public class ViewDataClientsService
     }).ToArray();
 
 
-    Task.WaitAll(contasTarefas);
-    var fim = DateTime.Now;
-
-    TimeSpan elapsedTime = fim - inicio;
-    _dataClient.tempoDecorrido = $"{elapsedTime.Seconds}.{elapsedTime.Milliseconds} segundos!";
-    _dataClient.mensagem = $"Processamento de {_dataClient.Resultado.Count} clientes em {_dataClient.tempoDecorrido}";
-
-    // Task.WhenAll(contasTarefas)
-    //   .ContinueWith(contas =>
+    // ConsolidarContas(contas)
+    //   .ContinueWith(task =>
     //   {
     //     var fim = DateTime.Now;
+    //     _dataClient.Resultado = task.Result;
 
     //     TimeSpan elapsedTime = fim - inicio;
     //     _dataClient.tempoDecorrido = $"{elapsedTime.Seconds}.{elapsedTime.Milliseconds} segundos!";
     //     _dataClient.mensagem = $"Processamento de {_dataClient.Resultado.Count} clientes em {_dataClient.tempoDecorrido}";
-    //   }, taskSchedulerUI);
+    //   });
+
+
+    _dataClient.Resultado = ConsolidarContas(contas).Result;
+
+    var fim = DateTime.Now;
+    TimeSpan elapsedTime = fim - inicio;
+    _dataClient.tempoDecorrido = $"{elapsedTime.Seconds}.{elapsedTime.Milliseconds} segundos!";
+    _dataClient.mensagem = $"Processamento de {_dataClient.Resultado.Count} clientes em {_dataClient.tempoDecorrido}";
 
 
     return Task.FromResult(_dataClient);
+  }
+
+  private Task<List<string>> ConsolidarContas(IEnumerable<ContaCliente> contas)
+  {
+    var resultado = new List<string>();
+
+    var tasks = contas.Select(conta =>
+    {
+      return Task.Factory.StartNew(() =>
+      {
+        var resultadoConta = r_Servico.ConsolidarMovimentacao(conta);
+        resultado.Add(resultadoConta);
+      });
+    });
+
+    return Task.WhenAll(tasks).ContinueWith(t =>
+      {
+        return resultado;
+      });
   }
 }

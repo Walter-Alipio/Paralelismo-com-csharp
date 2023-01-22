@@ -8,10 +8,13 @@
 
 <p>Processamento da informações do dia.</p>
 <button class="btn btn-primary" disabled=@IsTaskRunning @onclick=@ProccessOnClick>Fazer Processamento</button>
+
 @if (modelClient == null)
 {   
-    <p><em>Loading...</em></p>
-   
+    if(IsTaskRunning)
+    {
+        <p><em>Loading...</em></p>
+    }
 }
 else
 {
@@ -39,8 +42,8 @@ else
 
 @code {
 
-    bool IsTaskRunning = false;
     private ViewModelDataClient? modelClient;
+    private bool IsTaskRunning = false;
 
     private async void ProccessOnClick()    
     {
@@ -49,6 +52,7 @@ else
       modelClient = await ClienteService.ProcessarAsync();
     
       this.IsTaskRunning = false;
+      StateHasChanged ();
     }
 
 }

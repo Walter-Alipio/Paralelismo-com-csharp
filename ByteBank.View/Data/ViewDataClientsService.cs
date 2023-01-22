@@ -43,4 +43,5 @@ public class ViewDataClientsService
 
     return await Task.WhenAll(tasks);
   }
+
 }

@@ -1,6 +1,6 @@
 namespace ByteBank.View.Utils;
 
-public class ByteBankProgress<T> : Progress<T>
+public class ByteBankProgress<T> : IProgress<T>
 {
   private readonly Action<T> _handler;
   private readonly TaskScheduler _taskScheduler;

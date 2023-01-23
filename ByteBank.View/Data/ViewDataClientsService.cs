@@ -1,7 +1,7 @@
 using ByteBank.Core.Model;
 using ByteBank.Core.Repository;
 using ByteBank.Core.Service;
-
+namespace ByteBank.View.Data;
 public class ViewDataClientsService
 {
   private readonly ContaClienteRepository r_Repositorio;

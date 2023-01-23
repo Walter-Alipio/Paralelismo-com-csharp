@@ -1,3 +1,4 @@
+namespace ByteBank.View.Data;
 public class ViewModelDataClient
 {
   public List<string> Resultado { get; set; } = new List<string>();

@@ -6,21 +6,22 @@
 
 <h1>ByteBank transações</h1>
 
-<p>Processamento da informações do dia.</p>
+<p>Processamento das informações do dia.</p>
 <button class="btn btn-primary" disabled=@IsTaskRunning @onclick=@ProccessOnClick>Fazer Processamento</button>
 
-@if (modelClient == null)
-{   
-    if(IsTaskRunning)
-    {
-        <p><em>Loading...</em></p>
-    }
-}
-else
+
+@if(IsTaskRunning)
 {
-    <div>
-        <br>
-        @* <p>@modelClient.tempoDecorrido</p> *@
+    <div class="d-flex justify-content-center align-items-center gap-1 mt-5">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        </div>
+        <span class="text-secondary">Loading...</span>
+    </div>
+}
+@if (modelClient != null)
+{   
+
+    <div class="d-flex p-2 mt-3">
         <p>@modelClient.mensagem</p>
     </div>
     <table class="table">
@@ -47,6 +48,7 @@ else
 
     private async void ProccessOnClick()    
     {
+      modelClient = null;  
       this.IsTaskRunning = true;
 
       modelClient = await ClienteService.ProcessarAsync();

@@ -1,21 +1,30 @@
-﻿@page "/fetchdata"
+﻿@page "/"
 @using ByteBank.View.Data
+@using ByteBank.View.Utils
 @inject ViewDataClientsService ClienteService
 
 <PageTitle>ByteBank</PageTitle>
 
 <h1>ByteBank transações</h1>
 
-<p>Processamento da informações do dia.</p>
-<button class="btn btn-primary" @onclick="ProccessOnClick">Fazer Processamento</button>
-@if (modelClient == null)
+<p>Processamento das informações do dia.</p>
+<div class="container row gap-2 w-50">
+    <button class="btn btn-primary col" disabled=@IsTaskRunning @onclick=@ProccessOnClick>Fazer Processamento</button>
+    <button class="btn btn-primary col" disabled=@IsCancelDisable @onclick=@CancelProccess>Cancelar</button>
+</div>
+
+
+@if(IsTaskRunning)
 {
-    <p><em>Loading...</em></p>
+    <div class="progress mt-3" role="progressbar" aria-label="Animated striped example" aria-valuenow="@_progressBar" aria-valuemin="0" aria-valuemax=@_maxValue style="height: 20px" >
+         <div class="progress-bar progress-bar-striped  bg-success progress-bar-animated fs-6 " 
+            style="width: @(_progressBar * 10)%">@(_progressBar * 10)%</div>
+    </div>
 }
-else
-{
-    <div>
-        <p>@modelClient.tempoDecorrido</p>
+@if (modelClient != null)
+{   
+
+    <div class="d-flex p-2 mt-3">
         <p>@modelClient.mensagem</p>
     </div>
     <table class="table">
@@ -36,15 +45,47 @@ else
 }
 
 @code {
-    private ViewModelDataClient? modelClient;
 
-    @* protected override async Task OnInitializedAsync()
+    private ViewModelDataClient? modelClient;
+    private bool IsTaskRunning = false;
+    private bool IsCancelDisable = true;
+    private CancellationTokenSource _cts;
+    private int _progressBar;
+    private int _maxValue;
+
+    private async void ProccessOnClick()    
     {
-        forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(DateTime.Now));
-    } *@
-    private async void ProccessOnClick()
+      modelClient = null;  
+      this.IsTaskRunning = true;
+      IsCancelDisable = false;
+      _progressBar=0;
+
+      _cts = new CancellationTokenSource();
+
+      
+      var progress = new ByteBankProgress<string>(str =>{
+        _progressBar++;
+        StateHasChanged ();
+      });
+
+      modelClient = await AwaitProccessAsync(_cts.Token, progress, _maxValue);
+    
+      this.IsTaskRunning = false;
+      IsCancelDisable = true;
+      StateHasChanged ();
+
+    }
+    private void CancelProccess()
     {
-      modelClient = await ClienteService.ProcessarAsync();
+        IsCancelDisable = true;
+        _cts.Cancel();
+    }
+    private async Task<ViewModelDataClient> AwaitProccessAsync(CancellationToken ct,ByteBankProgress<string> progress, int maxValue)
+    {
+        //Implementar candelamento
+        var resultado = await Task.Run(async () =>  await ClienteService.ProcessarAsync(ct, progress, maxValue));
+
+        return resultado;
     }
 
 }

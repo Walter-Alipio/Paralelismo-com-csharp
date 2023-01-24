@@ -17,10 +17,9 @@ public class ViewDataClientsService
     _dataClient = new ViewModelDataClient();
   }
 
-  public async Task<ViewModelDataClient> ProcessarAsync(CancellationToken ct, IProgress<string> progress, int maxValue)
+  public async Task<ViewModelDataClient> ProcessarAsync(CancellationToken ct, IProgress<string> progress)
   {
     var contas = r_Repositorio.GetContaClientes();
-    maxValue = contas.Count();
 
     var resultado = new List<string>();
     _dataClient.tempoDecorrido = $"{TimeSpan.Zero}";
@@ -67,4 +66,8 @@ public class ViewDataClientsService
     return await Task.WhenAll(tasks);
   }
 
+  public int GetTotalOfContas()
+  {
+    return r_Repositorio.GetContaClientes().Count();
+  }
 }

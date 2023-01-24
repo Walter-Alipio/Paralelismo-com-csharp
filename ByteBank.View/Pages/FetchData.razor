@@ -18,7 +18,7 @@
 {
     <div class="progress mt-3" role="progressbar" aria-label="Animated striped example" aria-valuenow="@_progressBar" aria-valuemin="0" aria-valuemax=@_maxValue style="height: 20px" >
          <div class="progress-bar progress-bar-striped  bg-success progress-bar-animated fs-6 " 
-            style="width: @(_progressBar * 10)%">@(_progressBar * 10)%</div>
+            style="width: @(_progressBar)%">@_progressBar%</div>
     </div>
 }
 @if (modelClient != null)
@@ -52,6 +52,7 @@
     private CancellationTokenSource _cts;
     private int _progressBar;
     private int _maxValue;
+    private int count;
 
     private async void ProccessOnClick()    
     {
@@ -59,16 +60,19 @@
       this.IsTaskRunning = true;
       IsCancelDisable = false;
       _progressBar=0;
+      count = 0;
 
       _cts = new CancellationTokenSource();
 
-      
-      var progress = new ByteBankProgress<string>(str =>{
-        _progressBar++;
+      _maxValue = ClienteService.GetTotalOfContas();
+      var progress = new ByteBankProgress<string>(str =>{   
+        count++;
+        _progressBar = count * 100 / _maxValue;
         StateHasChanged ();
+
       });
 
-      modelClient = await AwaitProccessAsync(_cts.Token, progress, _maxValue);
+      modelClient = await AwaitProccessAsync(_cts.Token, progress);
     
       this.IsTaskRunning = false;
       IsCancelDisable = true;
@@ -80,10 +84,10 @@
         IsCancelDisable = true;
         _cts.Cancel();
     }
-    private async Task<ViewModelDataClient> AwaitProccessAsync(CancellationToken ct,ByteBankProgress<string> progress, int maxValue)
+    private async Task<ViewModelDataClient> AwaitProccessAsync(CancellationToken ct,ByteBankProgress<string> progress)
     {
         //Implementar candelamento
-        var resultado = await Task.Run(async () =>  await ClienteService.ProcessarAsync(ct, progress, maxValue));
+        var resultado = await Task.Run(async () =>  await ClienteService.ProcessarAsync(ct, progress));
 
         return resultado;
     }

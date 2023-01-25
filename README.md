@@ -1,15 +1,15 @@
-# Projeto feito para o curso de “C#: Paralelismo no mundo real”.
+# Projeto “C#: Paralelismo no mundo real”.
 
 Curso introdutório a threads, tasks e schedulers.
 
 | :placard: Vitrine.Dev |                                             |
 | --------------------- | ------------------------------------------- |
-| :sparkles: Nome       | **Titulo do meu projeto**                   |
+| :sparkles: Nome       | **ByteBank processamento de contas**        |
 | :label: Tecnologias   | c#, .Net 7, Blazor (tecnologias utilizadas) |
 
 <!-- Inserir imagem com a #vitrinedev ao final do link -->
 
-![Exemplo de execução do processamento](https://i.imgur.com/kIJ3uvi.mp4)
+![Exemplo de execução do processamento](https://i.imgur.com/aLqEUtA.gif#vitrinedev)
 
 ## Detalhes do projeto
 
